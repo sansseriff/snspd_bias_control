@@ -10,16 +10,7 @@
   let hidden = true;
 
   onMount(() => {
-    // // use the existence of the dark class on the html element for the initial value
-    // dark = document.documentElement.classList.contains("dark");
-    // // show UI controls
-    // hidden = false;
-    // // listen for changes so we auto-adjust based on system settings
-    // const matcher = window.matchMedia("(prefers-color-scheme: dark)");
-    // matcher.addEventListener("change", handleChange);
-    // return () => matcher.removeEventListener("change", handleChange);
-    // console.log("running on mount");
-    setMode(dark);
+    setMode($colorMode);
   });
 
   function handleChange({ matches: dark }: MediaQueryListEvent) {
@@ -38,7 +29,7 @@
 
   function setMode(value: boolean) {
     dark = value;
-    console.log("settting dark");
+    console.log("running setMode");
     colorMode.set(dark);
 
     // update page styling
@@ -79,14 +70,14 @@
 <button
   class="{$colorMode
     ? 'bg-gray-600 '
-    : ' bg-gray-200'} relative inline-flex flex-shrink-0 h-4 w-7 border-2 border-transparent rounded-full ease-in-out duration-200 my-auto mx-1"
+    : ' bg-gray-200'} relative inline-flex flex-shrink-0 h-5 w-9 border-2 border-transparent rounded-full ease-in-out duration-200 my-auto mx-1"
   on:click={toggle}
 >
   <span class="sr-only">Toggle Dark Mode</span>
   <span
     class="{$colorMode
       ? 'translate-x-0 bg-gray-400'
-      : 'translate-x-3 bg-white'} pointer-events-none relative inline-block h-3 w-3 rounded-full shadow transform ring-0 transition ease-in-out duration-200"
+      : 'translate-x-4 bg-white'} pointer-events-none relative inline-block h-4 w-4 rounded-full shadow transform ring-0 transition ease-in-out duration-200"
   >
     <span
       class="{$colorMode
@@ -96,7 +87,7 @@
     >
       <!-- moon icon -->
       <svg
-        class="h-3 w-3 text-gray-200"
+        class="h-4 w-4 text-gray-200"
         viewBox="0 0 20 20"
         fill="currentColor"
       >
@@ -113,7 +104,7 @@
     >
       <!-- sun icon -->
       <svg
-        class="h-3 w-3 text-yellow-300"
+        class="h-4 w-4 text-yellow-300"
         viewBox="0 0 20 20"
         fill="currentColor"
       >

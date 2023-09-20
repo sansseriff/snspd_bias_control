@@ -1,6 +1,7 @@
 <script>
   import "./app.css";
   import TopControlls from "./lib/TopControlls.svelte";
+  import BiasControll from "./lib/BiasControll.svelte";
 
   // import LightDarkToggle from "./lib/LightDarkToggle.svelte";
 
@@ -13,6 +14,10 @@
 <div class="container-main">
   <div class="main-bar">
     <TopControlls />
+
+    {#each Array(3) as _, i}
+      <BiasControll number={i + 1} />
+    {/each}
   </div>
 
   <div class="side-area" />
@@ -52,8 +57,8 @@
   @media (min-width: 400px) {
     .main-bar {
       flex-grow: 1;
-      min-width: 300px;
-      max-width: 300px;
+      min-width: 380px;
+      max-width: 380px;
     }
   }
 

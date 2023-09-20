@@ -1,6 +1,15 @@
-<div class="hamburger">
+<script>
+    export let onClick;
+    function handleKeyDown(event) {
+        if (event.key === "Enter" || event.key === " ") {
+            onClick();
+        }
+    }
+</script>
+
+<div class="hamburger" on:click={onClick} on:keydown={handleKeyDown}>
     <svg
-        class="h-4 w-5 text-gray-500 my-1 mr-1"
+        class="h-5.5 w-6 my-1 mr-1"
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
@@ -13,7 +22,16 @@
 </div>
 
 <style>
-    /* .hamburger {
-        
-    } */
+    .hamburger {
+        display: flex;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        padding-left: 4px;
+        padding-right: 4px;
+        color: var(--icon-color);
+    }
+
+    .hamburger:hover {
+        cursor: pointer;
+    }
 </style>
