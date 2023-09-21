@@ -50,6 +50,7 @@
   .button-bar {
     flex-grow: 1;
     background-color: var(--body-color);
+    padding: 1rem;
   }
 
   .bg-red-990 {

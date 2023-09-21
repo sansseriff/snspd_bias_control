@@ -7,14 +7,16 @@
 <button
   class="{redGreen
     ? $colorMode
-      ? 'cyan text-cyan-500 hover:text-cyan-400 border-cyan-500 bg-cyan-990 hover:bg-cyan-900'
-      : 'cyan text-cyan-500 bg-cyan-100 border-cyan-500'
+      ? 'teal text-teal-500 hover:text-teal-400 border-teal-500 bg-teal-990 hover:bg-teal-900'
+      : 'teal text-teal-500 bg-teal-100 border-teal-500'
     : $colorMode
       ? 'red text-red-500 hover:text-red-400 border-red-500 bg-red-990 hover:bg-red-900'
       : 'red text-red-500 bg-red-100 border-red-500'} 
-    text-s font-medium my-2 ml-2 border-2 border-opacity-50 rounded-sm px-4 py-1 button"
+    text-s font-medium border-2 border-opacity-50 rounded px-4 py-1 button"
+
 >
   <slot />
+  <!-- my-2 ml-2 -->
 </button>
 
 
@@ -28,6 +30,7 @@
     text-decoration: none;
     overflow: hidden;
     cursor: pointer;
+    user-select: none
   }
 
   .button:after {
@@ -49,8 +52,8 @@
     background: #f36666;
   }
 
-  .button.cyan:after {
-    background: #26f4dc;
+  .button.teal:after {
+    background: #26f4ba;
   }
 
   .button:active:after {

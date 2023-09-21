@@ -15,7 +15,7 @@
   <div class="main-bar">
     <TopControlls />
 
-    {#each Array(3) as _, i}
+    {#each Array(5) as _, i}
       <BiasControll number={i + 1} />
     {/each}
   </div>
@@ -29,14 +29,15 @@
     flex-direction: row;
     justify-content: center;
     /* align-items: center; */
-    height: 100vh;
-    width: 100vw;
+    min-height: 100vh;
+    /* min-width: 100vw; */
+    width: 100%;
   }
 
   .main-bar {
     justify-content: center;
     align-items: center;
-    height: 100%;
+    /* height: 100%; */
     background-color: var(--bg-color);
 
     flex-grow: 1;
@@ -49,10 +50,12 @@
   .side-area {
     justify-content: center;
     align-items: center;
-    height: 100%;
+    min-height: 100vh;
+    width: 100%;
     background-color: var(--bg-color);
     flex-grow: 4;
   }
+
 
   @media (min-width: 400px) {
     .main-bar {
