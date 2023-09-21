@@ -67,8 +67,8 @@
             styling
             <div class="toggle"><LightDarkToggle /></div>
         </li>
-        <li>more settings</li>
-        <li>more settings</li>
+        <!-- <li>more settings</li>
+        <li>more settings</li> -->
     </ul>
 </div>
 

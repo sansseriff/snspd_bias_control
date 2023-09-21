@@ -33,6 +33,7 @@ li {
   --outer-border-color: #e8e8e8;
   --display-color: white;
   --hover-body-color: #f3f3f3;
+  --hover-heading-color: #fafafa;
   --digits-color: #090909;
 }
 
@@ -47,5 +48,6 @@ li {
   --outer-border-color: #292930;
   --display-color: #292A2F;
   --hover-body-color: #2d2d32;
+  --hover-heading-color: rgb(57, 57, 66);
   --digits-color: #f7f7f7;
 }

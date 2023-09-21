@@ -38,13 +38,13 @@
     flex-direction: column;
     justify-content: center;
     box-shadow: 0 0 7px rgba(0, 0, 0, 0.05);
-    border: 1px solid var(--outer-border-color);
+    border: 1.3px solid var(--outer-border-color);
   }
   .top-bar {
     display: flex;
     flex-direction: row;
     background-color: var(--heading-color);
-    border-bottom: 1px solid var(--inner-border-color);
+    border-bottom: 1.3px solid var(--inner-border-color);
   }
 
   .button-bar {
