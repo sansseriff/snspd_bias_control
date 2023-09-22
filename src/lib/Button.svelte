@@ -25,8 +25,8 @@
 .button {
     position: relative;
 
-    -webkit-transition-duration: 0.4s;
-    transition-duration: 0.4s;
+    -webkit-transition-duration: 0.1s;
+    transition-duration: 0.1s;
     text-decoration: none;
     overflow: hidden;
     cursor: pointer;

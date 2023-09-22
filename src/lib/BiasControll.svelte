@@ -37,10 +37,10 @@
     $: {
         // when bias_voltage changes, check bounds and update the digits
         bias_voltage = parseFloat(bias_voltage.toFixed(3));
-        if (bias_voltage > 5) {
+        if (bias_voltage >= 5) {
             bias_voltage = 5;
         }
-        if (bias_voltage < -5) {
+        if (bias_voltage <= -5) {
             bias_voltage = -5;
         }
         ones = Math.floor(Math.abs(bias_voltage)) % 10;
@@ -85,13 +85,17 @@
             return;
         }
         else {
-            if (input > -5 && input < 5) {
+            if (input >= -5 && input <= 5) {
                 bias_voltage = input;
                 inputRef.value = ""; // Clear the input element in the DOM
-                
             }
         }
     }
+    function handleInputKeyDown(event) {
+    if (event.key === "Enter") {
+      handleSubmitButtonClick();
+    }
+  }
 </script>
 
 <div class="bound-box">
@@ -163,7 +167,7 @@
     <div class="main-controlls" class:alter>
         <div class="left">
             <Button redGreen={true} {colorMode}>Turn On</Button>
-            <input type="text" bind:this={inputRef} />
+            <input type="text" bind:this={inputRef} on:keydown={handleInputKeyDown}/>
             <SubmitButton {colorMode} on:submit={handleSubmitButtonClick}
                 >Submit</SubmitButton
             >
@@ -373,7 +377,8 @@
 
     .plus-minus {
         width: 18px;
-        padding-left: 5px;
+        display: flex;
+        justify-content: center;
         font-size: 1.5rem;
         font-weight: 300;
         color: var(--digits-color);
@@ -408,7 +413,7 @@
         justify-content: space-between;
         padding: 1rem 1rem;
         padding-right: 0.2rem;
-        width: 47%;
+        width: 46%;
         /* flex: 1; */
         /* padding-right: 13px; */
     }

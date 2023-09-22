@@ -1,5 +1,4 @@
 <script>
-  // import { dispatchEvent } from 'svelte';
   import { createEventDispatcher } from 'svelte';
   export let colorMode;
 
@@ -7,12 +6,7 @@
   const dispatch = createEventDispatcher();
   
   function handleClick() {
-    // const event = new CustomEvent('submit');
-    
-    // dispatchEvent(event);
-
     dispatch('submit');
-    console.log("submitting")
   }
 </script>
 
@@ -24,7 +18,6 @@
     } text-s font-medium border-2 border-opacity-50 rounded px-4 py-1 button"
 on:click={handleClick}>
   <slot />
-  <!-- my-2 ml-2 -->
 </button>
 
 
@@ -33,8 +26,8 @@ on:click={handleClick}>
 .button {
     position: relative;
 
-    -webkit-transition-duration: 0.4s;
-    transition-duration: 0.4s;
+    -webkit-transition-duration: 0.1s;
+    transition-duration: 0.1s;
     text-decoration: none;
     overflow: hidden;
     cursor: pointer;

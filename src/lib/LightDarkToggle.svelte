@@ -70,7 +70,7 @@
 <button
   class="{$colorMode
     ? 'bg-gray-600 '
-    : ' bg-gray-200'} relative inline-flex flex-shrink-0 h-5 w-9 border-2 border-transparent rounded-full ease-in-out duration-200 my-auto mx-1"
+    : ' bg-gray-200'} relative inline-flex flex-shrink-1 h-5 w-9 border-2 border-transparent rounded-full ease-in-out duration-200 my-auto mx-1"
   on:click={toggle}
 >
   <span class="sr-only">Toggle Dark Mode</span>
