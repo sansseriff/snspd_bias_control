@@ -16,7 +16,7 @@
     <TopControlls />
 
     {#each Array(5) as _, i}
-      <BiasControll number={i + 1} />
+      <BiasControll idx={i + 1} />
     {/each}
   </div>
 

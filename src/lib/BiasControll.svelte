@@ -3,20 +3,13 @@
 </script>
 
 <script lang="ts">
-    import LightDarkToggle from "../lib/LightDarkToggle.svelte";
-    import Hamburger from "../lib/Hamburger.svelte";
     import { colorMode } from "../stores/lightdark";
-    import Menu from "./Menu.svelte";
     import Button from "./Button.svelte";
     import ChevButtonTop from "./ChevButtonTop.svelte";
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
+    import SubmitButton from "./SubmitButton.svelte";
 
-    let showDropdown = false;
-    function toggleMenu() {
-        showDropdown = !showDropdown;
-    }
-
-    export let number;
+    export let idx; // index of the bias control
 
     let toggle_up = false;
     let toggle_down = true;
@@ -30,6 +23,36 @@
         alter = !alter;
         no_border = !no_border;
     }
+
+    let sign = "+";
+    let bias_voltage = 0;
+    let input_value = "";
+
+    let ones = 0,
+        tens = 0,
+        hundreds = 0,
+        thousands = 0,
+        integer = 0;
+
+    $: {
+        // when bias_voltage changes, check bounds and update the digits
+        bias_voltage = parseFloat(bias_voltage.toFixed(3));
+        if (bias_voltage > 5) {
+            bias_voltage = 5;
+        }
+        if (bias_voltage < -5) {
+            bias_voltage = -5;
+        }
+        ones = Math.floor(Math.abs(bias_voltage)) % 10;
+        integer = Math.round(Math.abs(bias_voltage * 1000));
+        thousands = integer % 10;
+        hundreds = Math.floor(integer / 10) % 10;
+        tens = Math.floor(integer / 100) % 10;
+        ones = Math.floor(integer / 1000) % 10;
+        sign = bias_voltage < 0 ? "-" : "+";
+        console.log("bias voltage: " + bias_voltage);
+    }
+
 
     let isEditing = false;
     let headingText = "";
@@ -51,12 +74,30 @@
             stopEditing();
         }
     }
+
+
+    let inputRef;
+    function handleSubmitButtonClick() {
+        console.log("Input value: " + inputRef.value);
+        let input = parseFloat(inputRef.value)
+        if (isNaN(input)) {
+            console.log("Input is not a number");
+            return;
+        }
+        else {
+            if (input > -5 && input < 5) {
+                bias_voltage = input;
+                inputRef.value = ""; // Clear the input element in the DOM
+                
+            }
+        }
+    }
 </script>
 
 <div class="bound-box">
     <div class="top-bar" class:no_border>
         <div class="top-left">
-            <h1 class="heading">{number}</h1>
+            <h1 class="heading">{idx}</h1>
             {#if isEditing}
                 <input
                     class="heading-input"
@@ -118,50 +159,56 @@
             </svg>
         </div>
     </div>
-    <!-- <div class="thing rotate rotate-down">sdfsdf</div> -->
 
     <div class="main-controlls" class:alter>
         <div class="left">
-            <!-- <div class="button-box"> -->
             <Button redGreen={true} {colorMode}>Turn On</Button>
-            <input type="text" />
-            <Button redGreen={false} {colorMode}>Submit</Button>
-            <!-- </div> -->
+            <input type="text" bind:this={inputRef} />
+            <SubmitButton {colorMode} on:submit={handleSubmitButtonClick}
+                >Submit</SubmitButton
+            >
         </div>
 
         <div class="right">
-            <div class="plus-minus">+</div>
+            <div
+                class="plus-minus"
+                on:click={() => {
+                    bias_voltage = -bias_voltage;
+                }}
+            >
+                {sign}
+            </div>
             <div class="controls">
                 <div class="buttons-top">
-                    <ChevButtonTop />
+                    <ChevButtonTop bind:bias_voltage increment={1} />
                     <div class="spacer-chev" />
-                    <ChevButtonTop />
+                    <ChevButtonTop bind:bias_voltage increment={0.1} />
                     <div class="spacer-chev" />
-                    <ChevButtonTop />
+                    <ChevButtonTop bind:bias_voltage increment={0.01} />
                     <div class="spacer-chev" />
-                    <ChevButtonTop />
+                    <ChevButtonTop bind:bias_voltage increment={0.001} />
                 </div>
 
                 <div class="display">
-                    <div class="digit">0</div>
+                    <div class="digit">{ones}</div>
                     <div class="short-spacer" />
                     <div class="digit dot">.</div>
                     <div class="short-spacer" />
-                    <div class="digit">0</div>
+                    <div class="digit">{tens}</div>
                     <div class="spacer" />
-                    <div class="digit">0</div>
+                    <div class="digit">{hundreds}</div>
                     <div class="spacer" />
-                    <div class="digit">0</div>
+                    <div class="digit">{thousands}</div>
                 </div>
 
                 <div class="buttons-bottom">
-                    <ChevButtonBottom />
+                    <ChevButtonBottom bind:bias_voltage increment={-1} />
                     <div class="spacer-chev" />
-                    <ChevButtonBottom />
+                    <ChevButtonBottom bind:bias_voltage increment={-0.1} />
                     <div class="spacer-chev" />
-                    <ChevButtonBottom />
+                    <ChevButtonBottom bind:bias_voltage increment={-0.01} />
                     <div class="spacer-chev" />
-                    <ChevButtonBottom />
+                    <ChevButtonBottom bind:bias_voltage increment={-0.001} />
                 </div>
             </div>
             <div class="voltage">V</div>
@@ -174,6 +221,9 @@
     /* @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz@8..144&display=swap'); */
     @import url("https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100;8..144,200;8..144,300;8..144,400;8..144,500;8..144,600;8..144,700&display=swap");
 
+    /* .sign {
+        width: 20px;
+    } */
 
     .top-left {
         display: flex;
@@ -205,7 +255,7 @@
         margin-right: 0; */
         /* display: block; */
         /* width: 50px; */
-        padding: 0.0rem 0rem;
+        padding: 0rem 0rem;
         padding-right: 0.8rem;
         opacity: 0.5;
     }
@@ -268,6 +318,7 @@
         border: 1.5px solid var(--inner-border-color);
         padding: 0rem 0.44rem;
         transition: background-color 0.1s ease-in-out;
+        /* margin: -0.5rem 0rem; */
     }
 
     .spacer {
@@ -321,15 +372,23 @@
     }
 
     .plus-minus {
+        width: 18px;
+        padding-left: 5px;
         font-size: 1.5rem;
         font-weight: 300;
-        color: var(--icon-color);
+        color: var(--digits-color);
         font-family: "Roboto Flex", sans-serif;
         font-weight: 300;
         margin-top: auto;
         margin-bottom: auto;
         margin-left: 0.2rem;
         margin-right: 0.2rem;
+        border-radius: 4px;
+    }
+
+    .plus-minus:hover {
+        cursor: pointer;
+        background-color: var(--hover-body-color);
     }
 
     .right {
@@ -337,7 +396,7 @@
         flex-direction: row;
         justify-content: space-between;
         padding: 1rem 1rem;
-        padding-left: 0.4rem;
+        padding-left: 0.2rem;
 
         /* flex: 10; */
         /* padding-right: 13px; */
@@ -348,7 +407,7 @@
         flex-direction: column;
         justify-content: space-between;
         padding: 1rem 1rem;
-        padding-right: 0.4rem;
+        padding-right: 0.2rem;
         width: 47%;
         /* flex: 1; */
         /* padding-right: 13px; */
