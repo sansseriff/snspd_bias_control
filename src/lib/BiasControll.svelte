@@ -27,6 +27,7 @@
     let sign = "+";
     let bias_voltage = 0;
     let input_value = "";
+    let isPlusMinusPressed = false;
 
     let ones = 0,
         tens = 0,
@@ -53,7 +54,6 @@
         console.log("bias voltage: " + bias_voltage);
     }
 
-
     let isEditing = false;
     let headingText = "";
 
@@ -75,30 +75,41 @@
         }
     }
 
-
     let inputRef;
     function handleSubmitButtonClick() {
         console.log("Input value: " + inputRef.value);
-        let input = parseFloat(inputRef.value)
+        let input = parseFloat(inputRef.value);
         if (isNaN(input)) {
             console.log("Input is not a number");
             return;
-        }
-        else {
+        } else {
             if (input >= -5 && input <= 5) {
                 bias_voltage = input;
                 inputRef.value = ""; // Clear the input element in the DOM
+                isPlusMinusPressed = true;
+                setTimeout(() => {
+                    isPlusMinusPressed = false;
+                }, 1);
             }
         }
     }
     function handleInputKeyDown(event) {
-    if (event.key === "Enter") {
-      handleSubmitButtonClick();
+        if (event.key === "Enter") {
+            handleSubmitButtonClick();
+        }
     }
-  }
+
+    function updatedPlusMinus() {
+        isPlusMinusPressed = true;
+        bias_voltage = -bias_voltage;
+        setTimeout(() => {
+            isPlusMinusPressed = false;
+        }, 1);
+    }
 </script>
 
 <div class="bound-box">
+    <!-- notice how I use class:no_border here -->
     <div class="top-bar" class:no_border>
         <div class="top-left">
             <h1 class="heading">{idx}</h1>
@@ -167,19 +178,18 @@
     <div class="main-controlls" class:alter>
         <div class="left">
             <Button redGreen={true} {colorMode}>Turn On</Button>
-            <input type="text" bind:this={inputRef} on:keydown={handleInputKeyDown}/>
+            <input
+                type="text"
+                bind:this={inputRef}
+                on:keydown={handleInputKeyDown}
+            />
             <SubmitButton {colorMode} on:submit={handleSubmitButtonClick}
                 >Submit</SubmitButton
             >
         </div>
 
         <div class="right">
-            <div
-                class="plus-minus"
-                on:click={() => {
-                    bias_voltage = -bias_voltage;
-                }}
-            >
+            <div class="plus-minus" on:click={updatedPlusMinus}>
                 {sign}
             </div>
             <div class="controls">
@@ -193,7 +203,7 @@
                     <ChevButtonTop bind:bias_voltage increment={0.001} />
                 </div>
 
-                <div class="display">
+                <div class="display {isPlusMinusPressed ? 'updating' : ''}">
                     <div class="digit">{ones}</div>
                     <div class="short-spacer" />
                     <div class="digit dot">.</div>
@@ -299,6 +309,7 @@
         font-size: 1.7rem;
     }
 
+
     .dot {
         margin-left: -0.03rem;
         margin-right: -0.03rem;
@@ -312,17 +323,45 @@
     }
 
     .display {
+        position: relative;
+        overflow: hidden;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         /* padding: 5px 10px;
         padding-right: 13px; */
-        background-color: var(--display-color);
+        /* background-color: var(--display-color); */
         border-radius: 4px;
         border: 1.5px solid var(--inner-border-color);
         padding: 0rem 0.44rem;
         transition: background-color 0.1s ease-in-out;
         /* margin: -0.5rem 0rem; */
+        background-color: var(--display-color);
+    }
+
+
+    .display:after {
+        content: "";
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0;
+        padding-top: 300%;
+        padding-left: 300%;
+        margin-left: -20px !important;
+        margin-top: -50%;
+        opacity: 0;
+        transition: all 0.4s;
+        background: var(--digits-color);
+    }
+
+
+    .display.updating:after {
+        padding: 0;
+        margin: 0;
+        opacity: 0.15;
+        transition: 0s; 
     }
 
     .spacer {
