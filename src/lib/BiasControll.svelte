@@ -10,10 +10,17 @@
     import ChevButtonTop from "./ChevButtonTop.svelte";
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
     import SubmitButton from "./SubmitButton.svelte";
+    import { voltageStore } from "../stores/voltageStore";
 
     export let idx; // index of the bias control
     export let bias_voltage;
     export let activated;
+    export let heading_text;
+    let immediate_text = "";
+
+
+    immediate_text = heading_text;
+
 
     let st = {
                 action_string: "Turn Off",
@@ -21,7 +28,13 @@
                 opacity: 1
             };
 
-    updateState();
+    
+
+    voltageStore.subscribe(data => {
+        bias_voltage = data[idx - 1].value;
+        activated = data[idx - 1].activated;
+        updateState();
+    });
 
     let toggle_up = false;
     let toggle_down = true;
@@ -63,7 +76,7 @@
         tens = Math.floor(integer / 100) % 10;
         ones = Math.floor(integer / 1000) % 10;
         sign = bias_voltage < 0 ? "-" : "+";
-        // console.log("bias voltage: " + bias_voltage);
+        updateState();
     }
 
     function switchState() {
@@ -73,24 +86,24 @@
 
     function updateState() {
         if (activated) {
-            // console.log
             st = {
                 action_string: "Turn Off",
                 colorMode: false,
                 opacity: 1
             };
+            // console.log("state is:", st)
         } else {
-            // console.log("so you're here")
             st = {
                 action_string: "Turn On",
                 colorMode: true,
                 opacity: 0.2
             };
+            // console.log("state is:", st)
         }
     }
 
     let isEditing = false;
-    let headingText = "";
+    
 
     function startEditing() {
         isEditing = true;
@@ -98,10 +111,11 @@
 
     function stopEditing() {
         isEditing = false;
+        heading_text = immediate_text;
     }
 
     function handleInput(event) {
-        headingText = event.target.value;
+        immediate_text = event.target.value;
     }
 
     function handleKeyDown(event) {
@@ -152,7 +166,7 @@
                 <input
                     class="heading-input"
                     type="text"
-                    value={headingText}
+                    value={immediate_text}
                     on:input={handleInput}
                     on:blur={stopEditing}
                     on:keydown={handleKeyDown}
@@ -165,7 +179,7 @@
                     on:click={startEditing}
                     on:keydown={handleKeyDown}
                 >
-                    {headingText}
+                    {immediate_text}
                 </h1>
             {/if}
         </div>

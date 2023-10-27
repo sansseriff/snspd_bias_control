@@ -2,14 +2,14 @@ import { writable } from 'svelte/store';
 
 export interface Voltage {
   value: number;
-  activated: boolean;}
+  activated: boolean;
+  name: string;}
 
 export const voltageStore = writable<Voltage[]>([
-  { value: 0.0, activated: false },
-  { value: 0.0, activated: false },
-  { value: 0.0, activated: false },
-  { value: 0.0, activated: false },
-  { value: 0.0, activated: false },
+  { value: 0.0, activated: false, name: ""},
+  { value: 0.0, activated: false, name: ""},
+  { value: 0.0, activated: false, name: ""},
+  { value: 0.0, activated: false, name: ""},
 ]);
 
 

@@ -8,12 +8,43 @@
   import { colorMode } from "../stores/lightdark";
   import Menu from "./Menu.svelte";
   import Button from "./Button.svelte";
+  import { voltageStore } from "../stores/voltageStore";
+  // import { update } from 'svelte/store';
 
   let showDropdown = false;
   function toggleMenu() {
     showDropdown = !showDropdown;
   }
-  
+
+  function allOn() {
+
+    // this method sends subscribed events for each item in the store (messy)
+    // for (let i = 0; i < $voltageStore.length; i++) {
+    //   $voltageStore[i].activated = true;
+    // }
+    
+
+    // with the update method you only trigger one event for 
+    // anything else that is subscribed to the store
+    voltageStore.update((store) => {
+    store.forEach((item) => {
+      item.activated = true;
+    });
+    return store;
+  });
+  }
+  function allOff() {
+    // for (let i = 0; i < $voltageStore.length; i++) {
+    //   $voltageStore[i].activated = false;
+    // }
+    voltageStore.update((store) => {
+    store.forEach((item) => {
+      item.activated = false;
+    });
+    return store;
+  });
+  }
+
 </script>
 
 <div class="bound-box">
@@ -21,18 +52,17 @@
     <h1 class="heading">SNSPD Bias Controll</h1>
     <Hamburger onClick={toggleMenu} />
     {#if showDropdown}
-      <Menu onClick={toggleMenu} menuVisible={showDropdown}/>
+      <Menu onClick={toggleMenu} menuVisible={showDropdown} />
     {/if}
   </div>
 
   <div class="button-bar">
-    <Button redGreen={true} colorMode={colorMode}>All On</Button>
-    <Button redGreen={false} colorMode={colorMode}>All Off</Button>
+    <Button redGreen={true} {colorMode} on:click={allOn}>All On</Button>
+    <Button redGreen={false} {colorMode} on:click={allOff}>All Off</Button>
   </div>
 </div>
 
 <style>
-
   .bound-box {
     display: flex;
     flex-direction: column;
@@ -86,5 +116,4 @@
       margin: 5px 5px 5px 5px;
     }
   }
-
 </style>

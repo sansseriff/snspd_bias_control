@@ -23,7 +23,7 @@
     <TopControlls />
 
     {#each voltage_state as _, i}
-      <BiasControll idx={i + 1} bind:bias_voltage={$voltageStore[i].value} bind:activated={$voltageStore[i].activated}/>
+      <BiasControll idx={i + 1} bind:bias_voltage={$voltageStore[i].value} bind:activated={$voltageStore[i].activated} bind:heading_text={$voltageStore[i].name}/>
     {/each}
   </div>
 
