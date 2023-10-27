@@ -5,8 +5,14 @@ export interface Voltage {
   activated: boolean;}
 
 export const voltageStore = writable<Voltage[]>([
-  { value: 1.5, activated: false },
-  { value: 3.3, activated: false },
-  { value: 5, activated: false },
-  { value: 12, activated: false },
+  { value: 0.0, activated: false },
+  { value: 0.0, activated: false },
+  { value: 0.0, activated: false },
+  { value: 0.0, activated: false },
+  { value: 0.0, activated: false },
 ]);
+
+
+voltageStore.subscribe((value) => {
+	console.log("this is store: ", value);
+}); // logs '0'

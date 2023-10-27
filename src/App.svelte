@@ -2,6 +2,7 @@
   import "./app.css";
   import TopControlls from "./lib/TopControlls.svelte";
   import BiasControll from "./lib/BiasControll.svelte";
+  import { voltageStore } from "./stores/voltageStore";
 
   // import LightDarkToggle from "./lib/LightDarkToggle.svelte";
 
@@ -9,14 +10,20 @@
     console.log("toggleDarkMode");
     document.body.classList.toggle("dark-mode");
   }
+
+  let voltage_state = [];
+  voltageStore.subscribe(data => {
+      voltage_state = data;
+    });
+
 </script>
 
 <div class="container-main">
   <div class="main-bar">
     <TopControlls />
 
-    {#each Array(5) as _, i}
-      <BiasControll idx={i + 1} />
+    {#each voltage_state as _, i}
+      <BiasControll idx={i + 1} bind:bias_voltage={$voltageStore[i].value} bind:activated={$voltageStore[i].activated}/>
     {/each}
   </div>
 

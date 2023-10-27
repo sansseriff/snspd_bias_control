@@ -1,15 +1,27 @@
 <script lang="ts" context="module">
     import "../app.css";
+    export let activated;
 </script>
 
 <script lang="ts">
     import { colorMode } from "../stores/lightdark";
+    // import { voltageStore } from "../stores/voltageStore"
     import Button from "./Button.svelte";
     import ChevButtonTop from "./ChevButtonTop.svelte";
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
     import SubmitButton from "./SubmitButton.svelte";
 
     export let idx; // index of the bias control
+    export let bias_voltage;
+    export let activated;
+
+    let st = {
+                action_string: "Turn Off",
+                colorMode: false,
+                opacity: 1
+            };
+
+    updateState();
 
     let toggle_up = false;
     let toggle_down = true;
@@ -25,7 +37,7 @@
     }
 
     let sign = "+";
-    let bias_voltage = 0;
+
     let input_value = "";
     let isPlusMinusPressed = false;
 
@@ -51,7 +63,30 @@
         tens = Math.floor(integer / 100) % 10;
         ones = Math.floor(integer / 1000) % 10;
         sign = bias_voltage < 0 ? "-" : "+";
-        console.log("bias voltage: " + bias_voltage);
+        // console.log("bias voltage: " + bias_voltage);
+    }
+
+    function switchState() {
+        activated = !activated;
+        updateState();
+    }
+
+    function updateState() {
+        if (activated) {
+            // console.log
+            st = {
+                action_string: "Turn Off",
+                colorMode: false,
+                opacity: 1
+            };
+        } else {
+            // console.log("so you're here")
+            st = {
+                action_string: "Turn On",
+                colorMode: true,
+                opacity: 0.2
+            };
+        }
     }
 
     let isEditing = false;
@@ -177,7 +212,9 @@
 
     <div class="main-controlls" class:alter>
         <div class="left">
-            <Button redGreen={true} {colorMode}>Turn On</Button>
+            <Button on:click={switchState} redGreen={st.colorMode} {colorMode}
+                >{st.action_string}</Button
+            >
             <input
                 type="text"
                 bind:this={inputRef}
@@ -189,7 +226,7 @@
         </div>
 
         <div class="right">
-            <div class="plus-minus" on:click={updatedPlusMinus}>
+            <div class="plus-minus" style="--state_opacity: {st.opacity}" on:click={updatedPlusMinus}>
                 {sign}
             </div>
             <div class="controls">
@@ -204,15 +241,15 @@
                 </div>
 
                 <div class="display {isPlusMinusPressed ? 'updating' : ''}">
-                    <div class="digit">{ones}</div>
+                    <div class="digit" style="--state_opacity: {st.opacity}">{ones}</div>
                     <div class="short-spacer" />
-                    <div class="digit dot">.</div>
+                    <div class="digit dot" style="--state_opacity: {st.opacity}">.</div>
                     <div class="short-spacer" />
-                    <div class="digit">{tens}</div>
+                    <div class="digit" style="--state_opacity: {st.opacity}" >{tens}</div>
                     <div class="spacer" />
-                    <div class="digit">{hundreds}</div>
+                    <div class="digit" style="--state_opacity: {st.opacity}">{hundreds}</div>
                     <div class="spacer" />
-                    <div class="digit">{thousands}</div>
+                    <div class="digit" style="--state_opacity: {st.opacity}">{thousands}</div>
                 </div>
 
                 <div class="buttons-bottom">
@@ -307,8 +344,8 @@
         font-family: "Roboto Flex", sans-serif;
         font-weight: 300;
         font-size: 1.7rem;
+        opacity: var(--state_opacity);
     }
-
 
     .dot {
         margin-left: -0.03rem;
@@ -339,7 +376,6 @@
         background-color: var(--display-color);
     }
 
-
     .display:after {
         content: "";
         display: block;
@@ -356,12 +392,11 @@
         background: var(--digits-color);
     }
 
-
     .display.updating:after {
         padding: 0;
         margin: 0;
         opacity: 0.15;
-        transition: 0s; 
+        transition: 0s;
     }
 
     .spacer {
@@ -428,6 +463,7 @@
         margin-left: 0.2rem;
         margin-right: 0.2rem;
         border-radius: 4px;
+        opacity: var(--state_opacity);
     }
 
     .plus-minus:hover {

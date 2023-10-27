@@ -4,7 +4,7 @@
 </script>
 
 
-<button
+<button on:click
   class="{redGreen
     ? $colorMode
       ? 'teal text-teal-500 hover:text-teal-400 border-teal-500 hover:bg-teal-900'
