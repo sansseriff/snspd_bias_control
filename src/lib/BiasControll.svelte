@@ -11,6 +11,7 @@
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
     import SubmitButton from "./SubmitButton.svelte";
     import { voltageStore } from "../stores/voltageStore";
+    // import { fly, fade } from "svelte/transition";
 
     export let idx; // index of the bias control
     export let bias_voltage;
@@ -18,19 +19,15 @@
     export let heading_text;
     let immediate_text = "";
 
-
     immediate_text = heading_text;
 
-
     let st = {
-                action_string: "Turn Off",
-                colorMode: false,
-                opacity: 1
-            };
+        action_string: "Turn Off",
+        colorMode: false,
+        opacity: 1,
+    };
 
-    
-
-    voltageStore.subscribe(data => {
+    voltageStore.subscribe((data) => {
         bias_voltage = data[idx - 1].value;
         activated = data[idx - 1].activated;
         updateState();
@@ -39,13 +36,15 @@
     let toggle_up = false;
     let toggle_down = true;
 
-    let alter = false;
+    // let alter = false;
+    let visible = true;
     let no_border = false;
 
     function togglerRotateState() {
         toggle_up = !toggle_up;
         toggle_down = !toggle_down;
-        alter = !alter;
+        // alter = !alter;
+        visible= !visible;
         no_border = !no_border;
     }
 
@@ -89,25 +88,24 @@
             st = {
                 action_string: "Turn Off",
                 colorMode: false,
-                opacity: 1
+                opacity: 1,
             };
             // console.log("state is:", st)
         } else {
             st = {
                 action_string: "Turn On",
                 colorMode: true,
-                opacity: 0.2
+                opacity: 0.2,
             };
             // console.log("state is:", st)
         }
     }
 
     let isEditing = false;
-    
 
-    function startEditing() {
-        isEditing = true;
-    }
+    // function startEditing() {
+    //     isEditing = true;
+    // }
 
     function stopEditing() {
         isEditing = false;
@@ -168,7 +166,7 @@
                     type="text"
                     value={immediate_text}
                     on:input={handleInput}
-                    on:blur={stopEditing}
+                    on:blur={() => {isEditing = false, heading_text = immediate_text}}
                     on:keydown={handleKeyDown}
                     tabindex="0"
                     autofocus
@@ -176,7 +174,7 @@
             {:else}
                 <h1
                     class="heading-label"
-                    on:click={startEditing}
+                    on:click={() => {isEditing = true}}
                     on:keydown={handleKeyDown}
                 >
                     {immediate_text}
@@ -223,62 +221,97 @@
             </svg>
         </div>
     </div>
-
-    <div class="main-controlls" class:alter>
-        <div class="left">
-            <Button on:click={switchState} redGreen={st.colorMode} {colorMode}
-                >{st.action_string}</Button
-            >
-            <input
-                type="text"
-                bind:this={inputRef}
-                on:keydown={handleInputKeyDown}
-            />
-            <SubmitButton {colorMode} on:submit={handleSubmitButtonClick}
-                >Submit</SubmitButton
-            >
-        </div>
-
-        <div class="right">
-            <div class="plus-minus" style="--state_opacity: {st.opacity}" on:click={updatedPlusMinus}>
-                {sign}
+    {#if visible}
+        <div class="main-controlls">
+            <div class="left">
+                <Button
+                    on:click={switchState}
+                    redGreen={st.colorMode}
+                    {colorMode}>{st.action_string}</Button
+                >
+                <input
+                    type="text"
+                    bind:this={inputRef}
+                    on:keydown={handleInputKeyDown}
+                />
+                <SubmitButton {colorMode} on:submit={handleSubmitButtonClick}
+                    >Submit</SubmitButton
+                >
             </div>
-            <div class="controls">
-                <div class="buttons-top">
-                    <ChevButtonTop bind:bias_voltage increment={1} />
-                    <div class="spacer-chev" />
-                    <ChevButtonTop bind:bias_voltage increment={0.1} />
-                    <div class="spacer-chev" />
-                    <ChevButtonTop bind:bias_voltage increment={0.01} />
-                    <div class="spacer-chev" />
-                    <ChevButtonTop bind:bias_voltage increment={0.001} />
-                </div>
 
-                <div class="display {isPlusMinusPressed ? 'updating' : ''}">
-                    <div class="digit" style="--state_opacity: {st.opacity}">{ones}</div>
-                    <div class="short-spacer" />
-                    <div class="digit dot" style="--state_opacity: {st.opacity}">.</div>
-                    <div class="short-spacer" />
-                    <div class="digit" style="--state_opacity: {st.opacity}" >{tens}</div>
-                    <div class="spacer" />
-                    <div class="digit" style="--state_opacity: {st.opacity}">{hundreds}</div>
-                    <div class="spacer" />
-                    <div class="digit" style="--state_opacity: {st.opacity}">{thousands}</div>
+            <div class="right">
+                <div
+                    class="plus-minus"
+                    style="--state_opacity: {st.opacity}"
+                    on:click={updatedPlusMinus}
+                >
+                    {sign}
                 </div>
+                <div class="controls">
+                    <div class="buttons-top">
+                        <ChevButtonTop bind:bias_voltage increment={1} />
+                        <div class="spacer-chev" />
+                        <ChevButtonTop bind:bias_voltage increment={0.1} />
+                        <div class="spacer-chev" />
+                        <ChevButtonTop bind:bias_voltage increment={0.01} />
+                        <div class="spacer-chev" />
+                        <ChevButtonTop bind:bias_voltage increment={0.001} />
+                    </div>
 
-                <div class="buttons-bottom">
-                    <ChevButtonBottom bind:bias_voltage increment={-1} />
-                    <div class="spacer-chev" />
-                    <ChevButtonBottom bind:bias_voltage increment={-0.1} />
-                    <div class="spacer-chev" />
-                    <ChevButtonBottom bind:bias_voltage increment={-0.01} />
-                    <div class="spacer-chev" />
-                    <ChevButtonBottom bind:bias_voltage increment={-0.001} />
+                    <div class="display {isPlusMinusPressed ? 'updating' : ''}">
+                        <div
+                            class="digit"
+                            style="--state_opacity: {st.opacity}"
+                        >
+                            {ones}
+                        </div>
+                        <div class="short-spacer" />
+                        <div
+                            class="digit dot"
+                            style="--state_opacity: {st.opacity}"
+                        >
+                            .
+                        </div>
+                        <div class="short-spacer" />
+                        <div
+                            class="digit"
+                            style="--state_opacity: {st.opacity}"
+                        >
+                            {tens}
+                        </div>
+                        <div class="spacer" />
+                        <div
+                            class="digit"
+                            style="--state_opacity: {st.opacity}"
+                        >
+                            {hundreds}
+                        </div>
+                        <div class="spacer" />
+                        <div
+                            class="digit"
+                            style="--state_opacity: {st.opacity}"
+                        >
+                            {thousands}
+                        </div>
+                    </div>
+
+                    <div class="buttons-bottom">
+                        <ChevButtonBottom bind:bias_voltage increment={-1} />
+                        <div class="spacer-chev" />
+                        <ChevButtonBottom bind:bias_voltage increment={-0.1} />
+                        <div class="spacer-chev" />
+                        <ChevButtonBottom bind:bias_voltage increment={-0.01} />
+                        <div class="spacer-chev" />
+                        <ChevButtonBottom
+                            bind:bias_voltage
+                            increment={-0.001}
+                        />
+                    </div>
                 </div>
+                <div class="voltage">V</div>
             </div>
-            <div class="voltage">V</div>
         </div>
-    </div>
+    {/if}
 </div>
 
 <style>
@@ -575,11 +608,10 @@
         transition: background-color 0.1s ease-in-out;
     }
 
-    .alter {
-        /* transform: scaleY(0);
-        transition: all .5s ease-in-out; */
+    /* .alter {
+
         display: none;
-    }
+    } */
 
     .no_border {
         border: none;
