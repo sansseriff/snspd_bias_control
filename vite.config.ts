@@ -4,7 +4,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '',
+  base: '/snspd-bias-controll-svelte/',
   plugins: [svelte()],
   css: {
     postcss
