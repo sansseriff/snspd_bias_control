@@ -49,7 +49,7 @@
 
 <div class="bound-box">
   <div class="top-bar">
-    <h1 class="heading">SNSPD Bias Controll</h1>
+    <h1 class="heading">SNSPD Bias Control</h1>
     <Hamburger onClick={toggleMenu} />
     {#if showDropdown}
       <Menu onClick={toggleMenu} menuVisible={showDropdown} />

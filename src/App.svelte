@@ -1,6 +1,6 @@
 <script>
   import "./app.css";
-  import TopControlls from "./lib/TopControlls.svelte";
+  import TopControls from "./lib/TopControls.svelte";
   import BiasControll from "./lib/BiasControll.svelte";
   import { voltageStore } from "./stores/voltageStore";
 
@@ -20,7 +20,7 @@
 
 <div class="container-main">
   <div class="main-bar">
-    <TopControlls />
+    <TopControls />
 
     {#each voltage_state as _, i}
       <BiasControll idx={i + 1} bind:bias_voltage={$voltageStore[i].value} bind:activated={$voltageStore[i].activated} bind:heading_text={$voltageStore[i].name}/>
