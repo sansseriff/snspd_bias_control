@@ -10,8 +10,7 @@
     }
 
     function onClick(event) {
-      bias_voltage += increment
-        // dispatch('change', bias_value);
+      bias_voltage += increment;
     }
 </script>
 

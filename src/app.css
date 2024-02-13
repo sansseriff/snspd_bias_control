@@ -35,6 +35,9 @@ li {
   --hover-body-color: #f3f3f3;
   --hover-heading-color: #fafafa;
   --digits-color: #090909;
+  --module-header-color: #a1a1a6;
+  --module-border-color: #8b8b8d;
+  --module-icon-color: #f1f1f1;
 }
 
 .dark {
@@ -50,4 +53,7 @@ li {
   --hover-body-color: #2d2d32;
   --hover-heading-color: rgb(57, 57, 66);
   --digits-color: #f7f7f7;
+  --module-header-color: #484853;
+  --module-border-color: rgb(59, 59, 59);
+  --module-icon-color: #f1f1f1;
 }

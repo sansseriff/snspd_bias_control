@@ -28,7 +28,7 @@
         padding-bottom: 2px;
         padding-left: 4px;
         padding-right: 4px;
-        color: var(--icon-color);
+        color: var(--module-icon-color);
     }
 
     .hamburger:hover {

@@ -3,13 +3,14 @@
 </script>
 
 <script lang="ts">
-  import LightDarkToggle from "../lib/LightDarkToggle.svelte";
-  import Hamburger from "../lib/Hamburger.svelte";
+  import LightDarkToggle from "./LightDarkToggle.svelte";
+  import Hamburger from "./Hamburger.svelte";
   import { colorMode } from "../stores/lightdark";
   import Menu from "./Menu.svelte";
   import Button from "./Button.svelte";
-  import { voltageStore } from "../stores/voltageStore";
+  // import { voltageStore } from "../stores/voltageStore";
   // import { update } from 'svelte/store';
+  export let total_state;
 
   let showDropdown = false;
   function toggleMenu() {
@@ -17,32 +18,19 @@
   }
 
   function allOn() {
-
-    // this method sends subscribed events for each item in the store (messy)
-    // for (let i = 0; i < $voltageStore.length; i++) {
-    //   $voltageStore[i].activated = true;
-    // }
-    
-
-    // with the update method you only trigger one event for 
-    // anything else that is subscribed to the store
-    voltageStore.update((store) => {
-    store.forEach((item) => {
-      item.activated = true;
-    });
-    return store;
-  });
+    total_state = total_state.map(module_state => 
+      module_state.map(channel_state => ({ ...channel_state, activated: true }))
+    );
+    console.log("total_state: ", total_state)
+    return total_state;
+  
   }
   function allOff() {
-    // for (let i = 0; i < $voltageStore.length; i++) {
-    //   $voltageStore[i].activated = false;
-    // }
-    voltageStore.update((store) => {
-    store.forEach((item) => {
-      item.activated = false;
-    });
-    return store;
-  });
+    total_state = total_state.map(module_state => 
+      module_state.map(channel_state => ({ ...channel_state, activated: false }))
+    );
+    console.log("total_state: ", total_state)
+    return total_state;
   }
 
 </script>
@@ -72,8 +60,9 @@
   }
   .top-bar {
     display: flex;
+    
     flex-direction: row;
-    background-color: var(--heading-color);
+    background-color: var(--module-header-color);
     border-bottom: 1.3px solid var(--inner-border-color);
   }
 
@@ -83,17 +72,17 @@
     padding: 1rem;
   }
 
-  .bg-red-990 {
+  /* .bg-red-990 {
     background-color: #321818;
-    /* opacity: 0.1; */
-  }
 
-  .bg-cyan-990 {
+  } */
+
+  /* .bg-cyan-990 {
     background-color: #183232;
-    /* opacity: 0.1; */
-  }
+  } */
 
   .heading {
+    font-size: 1.3rem;
     margin-right: auto;
     margin-top: auto;
     margin-bottom: auto;
@@ -102,16 +91,16 @@
     padding-right: 13px;
     padding-top: 5px;
     padding-bottom: 5px;
-    color: var(--text-color);
+    color: var(--module-icon-color);
   }
 
-  @media (min-width: 400px) {
+  @media (min-width: 500px) {
     .bound-box {
       margin: 5px 20px 5px 5px;
     }
   }
 
-  @media (max-width: 400px) {
+  @media (max-width: 500px) {
     .bound-box {
       margin: 5px 5px 5px 5px;
     }

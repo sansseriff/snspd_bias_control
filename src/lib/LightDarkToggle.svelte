@@ -1,7 +1,7 @@
 <script lang="ts">
   import "../app.css";
   import { onMount } from "svelte";
-  import { colorMode } from "../stores/lightdark";
+  import { colorMode, setMode } from "../stores/lightdark";
 
   // indicate if we're in dark mode or not
   let dark: boolean;
@@ -22,34 +22,11 @@
   }
 
   function toggle() {
-    console.log("running toggle");
+    // console.log("running toggle");
     // the ! needs to be here!!
-    setMode(!dark);
+    dark = setMode(!dark);
   }
 
-  function setMode(value: boolean) {
-    dark = value;
-    console.log("running setMode");
-    colorMode.set(dark);
-
-    // update page styling
-    if (dark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-
-    // store the theme as a local override
-    localStorage.theme = dark ? "dark" : "light";
-
-    // if the toggled-to theme matches the system defined theme, clear the local override
-    // this effectively provides a way to override or revert to "automatic" setting mode
-    if (
-      window.matchMedia(`(prefers-color-scheme: ${localStorage.theme})`).matches
-    ) {
-      localStorage.removeItem("theme");
-    }
-  }
 </script>
 
 <svelte:head>

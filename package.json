@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp -r dist/ ../backend/snspd_bias_control/",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "deploy": "npx gh-pages -d dist"
+    "deploy": "npx gh-pages -d snspd_bias_control"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.4",

@@ -10,13 +10,20 @@
     import ChevButtonTop from "./ChevButtonTop.svelte";
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
     import SubmitButton from "./SubmitButton.svelte";
-    import { voltageStore } from "../stores/voltageStore";
-    // import { fly, fade } from "svelte/transition";
+    // import { voltageStore } from "../stores/voltageStore";
+    import { sendRequest } from "../api";
+    import type { Dst } from "../stores/voltageStore";
+    import App from "../App.svelte";
+    import { onMount } from 'svelte';
 
-    export let idx; // index of the bias control
+
+    export let index; // index of the bias control
     export let bias_voltage;
     export let activated;
     export let heading_text;
+
+
+
     let immediate_text = "";
 
     immediate_text = heading_text;
@@ -27,11 +34,12 @@
         opacity: 1,
     };
 
-    voltageStore.subscribe((data) => {
-        bias_voltage = data[idx - 1].value;
-        activated = data[idx - 1].activated;
-        updateState();
-    });
+    // voltageStore.subscribe((data) => {
+    //     bias_voltage = data[index - 1].bias_voltage;
+    //     activated = data[index - 1].activated;
+    //     heading_text = data[index - 1].heading_text;
+    //     updateState();
+    // });
 
     let toggle_up = false;
     let toggle_down = true;
@@ -59,8 +67,14 @@
         thousands = 0,
         integer = 0;
 
-    $: {
-        // when bias_voltage changes, check bounds and update the digits
+    let isMounted = false;
+    let updateComplete = false; // 
+
+    onMount(() => {
+        isMounted = true;
+    });
+
+    $: if(isMounted) {
         bias_voltage = parseFloat(bias_voltage.toFixed(3));
         if (bias_voltage >= 5) {
             bias_voltage = 5;
@@ -75,7 +89,14 @@
         tens = Math.floor(integer / 100) % 10;
         ones = Math.floor(integer / 1000) % 10;
         sign = bias_voltage < 0 ? "-" : "+";
+        if (updateComplete) {
+            console.log("sending request: ", {bias_voltage, activated, heading_text, index});
+            sendRequest({bias_voltage, activated, heading_text, index});
+        }
+
+        // sendRequest({bias_voltage, activated, heading_text, index});
         updateState();
+        updateComplete = true;
     }
 
     function switchState() {
@@ -103,9 +124,6 @@
 
     let isEditing = false;
 
-    // function startEditing() {
-    //     isEditing = true;
-    // }
 
     function stopEditing() {
         isEditing = false;
@@ -119,6 +137,7 @@
     function handleKeyDown(event) {
         if (event.key === "Enter") {
             stopEditing();
+            
         }
     }
 
@@ -153,25 +172,25 @@
             isPlusMinusPressed = false;
         }, 1);
     }
+
 </script>
 
 <div class="bound-box">
     <!-- notice how I use class:no_border here -->
     <div class="top-bar" class:no_border>
         <div class="top-left">
-            <h1 class="heading">{idx}</h1>
-            {#if isEditing}
+            <h1 class="heading">{index}</h1>
+            <!-- {#if isEditing} -->
                 <input
                     class="heading-input"
                     type="text"
                     value={immediate_text}
                     on:input={handleInput}
-                    on:blur={() => {isEditing = false, heading_text = immediate_text}}
+                    on:blur={() => {heading_text = immediate_text}}
                     on:keydown={handleKeyDown}
                     tabindex="0"
-                    autofocus
                 />
-            {:else}
+            <!-- {:else}
                 <h1
                     class="heading-label"
                     on:click={() => {isEditing = true}}
@@ -179,7 +198,7 @@
                 >
                     {immediate_text}
                 </h1>
-            {/if}
+            {/if} -->
         </div>
         <div class="top-right">
             <div class="dot-menu">
@@ -244,6 +263,7 @@
                     class="plus-minus"
                     style="--state_opacity: {st.opacity}"
                     on:click={updatedPlusMinus}
+                    on:keydown={updatedPlusMinus}
                 >
                     {sign}
                 </div>
@@ -358,18 +378,18 @@
         opacity: 0.5;
     }
 
-    .heading-label {
+    /* .heading-label {
         min-width: 230px;
         padding-right: 0rem;
         padding: 0.01rem 0.5rem;
         border-radius: 0.2rem;
         border: 1.5px solid var(--heading-color);
-    }
+    } */
 
-    .heading-label:hover {
+    /* .heading-label:hover {
         background-color: var(--hover-heading-color);
         border: 1.5px solid var(--inner-border-color);
-    }
+    } */
 
     input {
         background-color: var(--display-color);
@@ -382,6 +402,22 @@
         letter-spacing: 0.58rem;
         color: var(--digits-color);
         transition: background-color 0.1s ease-in-out;
+    }
+
+    .heading-input {
+        color: var(--digits-color);
+        background-color: var(--heading-color);
+        border: 1.5px solid var(--heading-color);
+    }
+
+    .heading-input:hover {
+        background-color: var(--hover-heading-color);
+        border: 1.5px solid var(--inner-border-color);
+    }
+
+    .heading-input:focus {
+        background-color: var(--hover-heading-color);
+        border: 1.5px solid var(--inner-border-color);
     }
 
     .digit {
@@ -399,12 +435,12 @@
         margin-right: -0.03rem;
     }
 
-    .button-box {
+    /* .button-box {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         margin: 0.75rem;
-    }
+    } */
 
     .display {
         position: relative;
