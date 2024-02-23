@@ -8,31 +8,35 @@
   import { colorMode } from "../stores/lightdark";
   import Menu from "./Menu.svelte";
   import Button from "./Button.svelte";
-  // import { voltageStore } from "../stores/voltageStore";
-  // import { update } from 'svelte/store';
-  export let total_state;
+  import { get } from 'svelte/store';
+  import { voltageStore, switch_on_off_system } from "../stores/voltageStore";
+  import {requestFullStateUpdate} from "../api";
+  import type { SystemState } from "../stores/voltageStore";
 
   let showDropdown = false;
   function toggleMenu() {
     showDropdown = !showDropdown;
   }
 
-  function allOn() {
-    total_state = total_state.map(module_state => 
-      module_state.map(channel_state => ({ ...channel_state, activated: true }))
-    );
-    console.log("total_state: ", total_state)
-    return total_state;
-  
-  }
-  function allOff() {
-    total_state = total_state.map(module_state => 
-      module_state.map(channel_state => ({ ...channel_state, activated: false }))
-    );
-    console.log("total_state: ", total_state)
-    return total_state;
+  let total_state: SystemState;
+
+  voltageStore.subscribe((state) => {
+    total_state = state;
+  });
+
+  async function allOn() {
+    // const total_state = get(voltageStore);
+    const modified_state = switch_on_off_system(total_state, true);
+    const returned_state = await requestFullStateUpdate(modified_state);
+    voltageStore.set(returned_state);
   }
 
+  async function allOff() {
+    // const total_state = get(voltageStore);
+    const modified_state = switch_on_off_system(total_state, false);
+    const returned_state = await requestFullStateUpdate(modified_state);
+    voltageStore.set(returned_state);
+  }
 </script>
 
 <div class="bound-box">
@@ -60,7 +64,7 @@
   }
   .top-bar {
     display: flex;
-    
+
     flex-direction: row;
     background-color: var(--module-header-color);
     border-bottom: 1.3px solid var(--inner-border-color);

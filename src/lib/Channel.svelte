@@ -10,34 +10,112 @@
     import ChevButtonTop from "./ChevButtonTop.svelte";
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
     import SubmitButton from "./SubmitButton.svelte";
+    import { get } from "svelte/store";
     // import { voltageStore } from "../stores/voltageStore";
-    import { sendRequest } from "../api";
-    import type { Dst } from "../stores/voltageStore";
+    import { requestChannelUpdate } from "../api";
+    import type { ChannelChange } from "../stores/voltageStore";
     import App from "../App.svelte";
-    import { onMount } from 'svelte';
-
+    import { onMount } from "svelte";
+    import { voltageStore } from "../stores/voltageStore";
 
     export let index; // index of the bias control
-    export let bias_voltage;
-    export let activated;
-    export let heading_text;
     export let module_index;
-    export let updateChannel;
+
+    let bias_voltage;
+    let activated;
+    let heading_text
+    let immediate_text
+    let heading_editing = false;
+
+    immediate_text = heading_text;
+
+    // voltageStore.subscribe((full_state) => {
+    //     bias_voltage = full_state.data[module_index - 1][index - 1].bias_voltage;
+    //     activated = full_state.data[module_index - 1][index - 1].activated;
+    //     heading_text = full_state.data[module_index - 1][index - 1].heading_text;
+    // })
+
+    async function validateUpdateVoltage(voltage) {
+        if (voltage >= 5) {
+            voltage = 5;
+        }
+        if (voltage <= -5) {
+            voltage = -5;
+        }
+        const data: ChannelChange = {
+            module_index,
+            bias_voltage: voltage,
+            activated,
+            heading_text,
+            index,
+        };
+        updateChannel(data);
+    }
+
+    //// grab and update
+    async function increment(value) {
+        // bias_voltage =
+        //     get(voltageStore).data[module_index - 1][index - 1].bias_voltage;
+
+        let new_bias_voltage = bias_voltage + value;
+        validateUpdateVoltage(new_bias_voltage);
+    }
+
+    //// grab and update
+    function switchState() {
+        // const activation = get(voltageStore).data[module_index - 1][index - 1].activated;
+
+        const data: ChannelChange = {
+            module_index,
+            bias_voltage,
+            activated: !activated,
+            heading_text,
+            index,
+        };
+        updateChannel(data);
+    }
+
+    function updatedPlusMinus() {
+        isPlusMinusPressed = true;
+        const data: ChannelChange = {
+            module_index,
+            bias_voltage: -bias_voltage,
+            activated,
+            heading_text,
+            index,
+        };
+        updateChannel(data);
+
+        setTimeout(() => {
+            isPlusMinusPressed = false;
+        }, 1);
+    }
+
+    async function updateChannel(data: ChannelChange) {
+        const returnData = await requestChannelUpdate(data);
+
+        voltageStore.update((full_state) => {
+            full_state.data[module_index - 1].channels[index - 1].activated =
+                returnData.activated;
+            full_state.data[module_index - 1].channels[index - 1].bias_voltage =
+                returnData.bias_voltage;
+            full_state.data[module_index - 1].channels[index - 1].heading_text =
+                returnData.heading_text;
+            return full_state;
+        });
+    }
+
+    // export let updateChannel;
 
     // function onStateChange
 
-
-
-    let immediate_text = "";
-
-    immediate_text = heading_text;
+    // immediate_text = heading_text;
 
     let st = {
         action_string: "Turn Off",
         colorMode: false,
         opacity: 1,
     };
-
 
     let toggle_up = false;
     let toggle_down = true;
@@ -50,7 +128,7 @@
         toggle_up = !toggle_up;
         toggle_down = !toggle_down;
         // alter = !alter;
-        visible= !visible;
+        visible = !visible;
         no_border = !no_border;
     }
 
@@ -66,20 +144,23 @@
         integer = 0;
 
     let isMounted = false;
-    let updateComplete = false; // 
+    let updateComplete = false; //
 
     onMount(() => {
         isMounted = true;
     });
 
-    $: if(isMounted) {
-        bias_voltage = parseFloat(bias_voltage.toFixed(3));
-        if (bias_voltage >= 5) {
-            bias_voltage = 5;
+    voltageStore.subscribe((full_state) => {
+        // update local state
+        const mst = full_state.data[module_index - 1].channels[index - 1];
+        bias_voltage = mst.bias_voltage;
+        activated = mst.activated;
+        heading_text = mst.heading_text;
+        if (!heading_editing) {
+            immediate_text = heading_text;
         }
-        if (bias_voltage <= -5) {
-            bias_voltage = -5;
-        }
+
+        // distribute effects
         ones = Math.floor(Math.abs(bias_voltage)) % 10;
         integer = Math.round(Math.abs(bias_voltage * 1000));
         thousands = integer % 10;
@@ -87,48 +168,66 @@
         tens = Math.floor(integer / 100) % 10;
         ones = Math.floor(integer / 1000) % 10;
         sign = bias_voltage < 0 ? "-" : "+";
-        if (updateComplete) {
-            // console.log("sending request: ", {module_index, bias_voltage, activated, heading_text, index});
-            sendRequest({module_index, bias_voltage, activated, heading_text, index});
-            console.log("index-1", index-1)
-            updateChannel(index-1, {bias_voltage, activated, heading_text, index});
-        }
-        
-        // sendRequest({bias_voltage, activated, heading_text, index});
-        updateState();
-        updateComplete = true;
-    }
-
-    function switchState() {
-        activated = !activated;
-        updateState();
-    }
-
-    function updateState() {
         if (activated) {
             st = {
                 action_string: "Turn Off",
                 colorMode: false,
                 opacity: 1,
             };
-            // console.log("state is:", st)
         } else {
             st = {
                 action_string: "Turn On",
                 colorMode: true,
                 opacity: 0.2,
             };
-            // console.log("state is:", st)
         }
-    }
+    });
+
+    // $: if(isMounted) {
+    //     bias_voltage = parseFloat(bias_voltage.toFixed(3));
+    //     if (bias_voltage >= 5) {
+    //         bias_voltage = 5;
+    //     }
+    //     if (bias_voltage <= -5) {
+    //         bias_voltage = -5;
+    //     }
+    //     ones = Math.floor(Math.abs(bias_voltage)) % 10;
+    //     integer = Math.round(Math.abs(bias_voltage * 1000));
+    //     thousands = integer % 10;
+    //     hundreds = Math.floor(integer / 10) % 10;
+    //     tens = Math.floor(integer / 100) % 10;
+    //     ones = Math.floor(integer / 1000) % 10;
+    //     sign = bias_voltage < 0 ? "-" : "+";
+    //     if (updateComplete) {
+    //         // console.log("sending request: ", {module_index, bias_voltage, activated, heading_text, index});
+    //         sendRequest({module_index, bias_voltage, activated, heading_text, index});
+    //         console.log("index-1", index-1);
+    //     }
+
+    //     // sendRequest({bias_voltage, activated, heading_text, index});
+    //     updateState();
+    //     updateComplete = true;
+    // }
+
+    // function updateState() {
+    //     if (activated) {
+    //         st = {
+    //             action_string: "Turn Off",
+    //             colorMode: false,
+    //             opacity: 1,
+    //         };
+    //         // console.log("state is:", st)
+    //     } else {
+    //         st = {
+    //             action_string: "Turn On",
+    //             colorMode: true,
+    //             opacity: 0.2,
+    //         };
+    //         // console.log("state is:", st)
+    //     }
+    // }
 
     let isEditing = false;
-
-
-    function stopEditing() {
-        isEditing = false;
-        heading_text = immediate_text;
-    }
 
     function handleInput(event) {
         immediate_text = event.target.value;
@@ -136,8 +235,14 @@
 
     function handleKeyDown(event) {
         if (event.key === "Enter") {
-            stopEditing();
-            
+            isEditing = false;
+            updateChannel({
+                module_index,
+                bias_voltage,
+                activated,
+                heading_text: immediate_text,
+                index,
+            });
         }
     }
 
@@ -149,14 +254,21 @@
             console.log("Input is not a number");
             return;
         } else {
-            if (input >= -5 && input <= 5) {
-                bias_voltage = input;
-                inputRef.value = ""; // Clear the input element in the DOM
-                isPlusMinusPressed = true;
-                setTimeout(() => {
-                    isPlusMinusPressed = false;
-                }, 1);
-            }
+            // if (input >= -5 && input <= 5) {
+            //     bias_voltage = input;
+            //     inputRef.value = ""; // Clear the input element in the DOM
+            //     isPlusMinusPressed = true;
+            //     setTimeout(() => {
+            //         isPlusMinusPressed = false;
+            //     }, 1);
+            // }
+
+            validateUpdateVoltage(input);
+            inputRef.value = ""; // Clear the input element in the DOM
+            isPlusMinusPressed = true;
+            setTimeout(() => {
+                isPlusMinusPressed = false;
+            }, 1);
         }
     }
     function handleInputKeyDown(event) {
@@ -164,15 +276,6 @@
             handleSubmitButtonClick();
         }
     }
-
-    function updatedPlusMinus() {
-        isPlusMinusPressed = true;
-        bias_voltage = -bias_voltage;
-        setTimeout(() => {
-            isPlusMinusPressed = false;
-        }, 1);
-    }
-
 </script>
 
 <div class="bound-box">
@@ -181,15 +284,25 @@
         <div class="top-left">
             <h1 class="heading">{index}</h1>
             <!-- {#if isEditing} -->
-                <input
-                    class="heading-input"
-                    type="text"
-                    value={immediate_text}
-                    on:input={handleInput}
-                    on:blur={() => {heading_text = immediate_text}}
-                    on:keydown={handleKeyDown}
-                    tabindex="0"
-                />
+            <input
+                class="heading-input"
+                type="text"
+                value={immediate_text}
+                on:input={handleInput}
+                on:focus={() => (heading_editing = true)}
+                on:blur={() => {
+                    heading_editing = false;
+                    updateChannel({
+                        module_index,
+                        bias_voltage,
+                        activated,
+                        heading_text: immediate_text,
+                        index,
+                    });
+                }}
+                on:keydown={handleKeyDown}
+                tabindex="0"
+            />
             <!-- {:else}
                 <h1
                     class="heading-label"
@@ -269,16 +382,17 @@
                 </div>
                 <div class="controls">
                     <div class="buttons-top">
-                        <ChevButtonTop bind:bias_voltage increment={1} />
+                        <ChevButtonTop on:click={() => increment(1)} />
                         <div class="spacer-chev" />
-                        <ChevButtonTop bind:bias_voltage increment={0.1} />
+                        <ChevButtonTop on:click={() => increment(0.1)} />
                         <div class="spacer-chev" />
-                        <ChevButtonTop bind:bias_voltage increment={0.01} />
+                        <ChevButtonTop on:click={() => increment(0.01)} />
                         <div class="spacer-chev" />
-                        <ChevButtonTop bind:bias_voltage increment={0.001} />
+                        <ChevButtonTop on:click={() => increment(0.001)} />
                     </div>
 
                     <div class="display {isPlusMinusPressed ? 'updating' : ''}">
+                        <!-- <div class="display updating"> -->
                         <div
                             class="digit"
                             style="--state_opacity: {st.opacity}"
@@ -316,16 +430,13 @@
                     </div>
 
                     <div class="buttons-bottom">
-                        <ChevButtonBottom bind:bias_voltage increment={-1} />
+                        <ChevButtonBottom on:click={() => increment(-1)} />
                         <div class="spacer-chev" />
-                        <ChevButtonBottom bind:bias_voltage increment={-0.1} />
+                        <ChevButtonBottom on:click={() => increment(-0.1)} />
                         <div class="spacer-chev" />
-                        <ChevButtonBottom bind:bias_voltage increment={-0.01} />
+                        <ChevButtonBottom on:click={() => increment(-0.01)} />
                         <div class="spacer-chev" />
-                        <ChevButtonBottom
-                            bind:bias_voltage
-                            increment={-0.001}
-                        />
+                        <ChevButtonBottom on:click={() => increment(-0.001)} />
                     </div>
                 </div>
                 <div class="voltage">V</div>
@@ -373,7 +484,6 @@
         margin-right: 0; */
         /* display: block; */
         /* width: 50px; */
-        
     }
 
     .heading {
@@ -605,7 +715,7 @@
         justify-content: center;
         box-shadow: 0 0 7px rgba(0, 0, 0, 0.05);
         border: 1.3px solid var(--outer-border-color);
-        margin: 0.2rem 0.0rem;
+        margin: 0.2rem 0rem;
     }
     .top-bar {
         display: flex;
@@ -616,8 +726,6 @@
         padding: 5px 10px;
         padding-right: 13px;
     }
-
-    
 
     .dot-menu {
         padding: 0px 12px;

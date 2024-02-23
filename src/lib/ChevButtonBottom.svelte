@@ -1,20 +1,14 @@
 <script>
-  // import { createEventDispatcher } from 'svelte';
-  export let bias_voltage;
-  export let increment;
-  // const dispatch = createEventDispatcher();
-  function handleKeyDown(event) {
-        if (event.key === "Enter" || event.key === " ") {
-            onClick();
-        }
-    }
 
-    function onClick(event) {
-      bias_voltage += increment;
+function handleKeyDown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.target.click();
     }
+  }
+
 </script>
 
-<div class="chev-button" on:click={onClick} on:keydown={handleKeyDown}>
+<div class="chev-button" on:click on:keydown={handleKeyDown}>
   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" stroke="currentColor" class="bi bi-chevron-compact-down" viewBox="0 0 16 16">
     <path fill-rule="evenodd" d="M1.553 6.776a.5.5 0 0 1 .67-.223L8 9.44l5.776-2.888a.5.5 0 1 1 .448.894l-6 3a.5.5 0 0 1-.448 0l-6-3a.5.5 0 0 1-.223-.67z"
     stroke-width=".3"/>

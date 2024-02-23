@@ -1,43 +1,49 @@
 import { writable } from 'svelte/store';
+import type Module from '../lib/Module.svelte';
 
-export interface Dst {
+export interface ChannelChange {
   module_index: number;
   index: number;
   bias_voltage: number;
   activated: boolean;
-  heading_text: string;}
+  heading_text: string;
+}
 
 export interface ChState {
   index: number;
   bias_voltage: number;
   activated: boolean;
-  heading_text: string;}
+  heading_text: string;
+}
 
-export type Module4chState = [ChState, ChState, ChState, ChState]
+export interface Module4chState {
+  channels: Array<ChState>,
+  slot: number;
+  type: string;
+  name: string;
+}
+
+export interface SystemState {
+  data: Array<Module4chState>;
+  valid: boolean;
+}
+
+function switch_on_off_channel(channel: ChState, onoff: boolean): ChState {
+  channel.activated = onoff
+  return channel;
+}
+
+function switch_on_off_module(module: Module4chState, onoff: boolean): Module4chState {
+  module.channels.map((channel) => switch_on_off_channel(channel, onoff));
+  return module;
+}
+
+export function switch_on_off_system(system: SystemState, onoff: boolean): SystemState {
+  return { data: system.data.map((module) => switch_on_off_module(module, onoff)), valid: system.valid };
+}
 
 
-// export const voltageStore = writable<Dst[]>([
-//   { index: 1, bias_voltage: 0.0, activated: false, heading_text: ""},
-//   { index: 2, bias_voltage: 0.0, activated: false, heading_text: ""},
-//   { index: 3, bias_voltage: 0.0, activated: false, heading_text: ""},
-//   { index: 4, bias_voltage: 0.0, activated: false, heading_text: ""},
-// ]);
+
+export const voltageStore = writable<SystemState>({ data: [], valid: false });
 
 
-
-
-// voltageStore.subscribe((value) => {
-// 	console.log("this is store: ", value);
-
-// // .then(res => res.json()).then(data => {
-// //     State[data.channel].voltage = data.voltage
-// //     State[data.channel].state = data.state
-// //     apply_state(State)
-// // }).catch(error => console.log("catched 2", error))
-
-
-
-
-
-  
-// }); // logs '0'

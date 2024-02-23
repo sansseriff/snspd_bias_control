@@ -1,15 +1,15 @@
 
-import type { Dst } from './stores/voltageStore';
-import type { Module4chState, ChState } from './stores/voltageStore';
+import type { ChannelChange } from './stores/voltageStore';
+import type { Module4chState, ChState, SystemState } from './stores/voltageStore';
 
 
 const controller = new AbortController()
 const signal = controller.signal
 
-export function sendRequest(dst: Dst) {
+export function requestChannelUpdate(dst: ChannelChange) {
     // console.log("dst: ", dst)
-    return fetch("/submit", {
-        method: "POST",
+    return fetch("/channel", {
+        method: "PUT",
         signal: signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dst)
@@ -36,9 +36,24 @@ export function getFullState() {
     })
 }
 
-export function sendFullState(state: Module4chState) {
+// export function sendFullState(state: Module4chState) {
+//     return fetch("/full-state", {
+//         method: "POST",
+//         signal: signal,
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify(state)
+//     })
+//     .then(response => {
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+//         return response.json();
+//     })
+// }
+
+export function requestFullStateUpdate(state: SystemState): Promise<SystemState> {
     return fetch("/full-state", {
-        method: "POST",
+        method: "PUT",
         signal: signal,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(state)
@@ -49,7 +64,9 @@ export function sendFullState(state: Module4chState) {
         }
         return response.json();
     })
+
 }
+
 
 export function initializeState(channel_number: number) {
     return fetch("/initialize", {

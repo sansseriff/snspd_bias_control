@@ -1,112 +1,123 @@
-<script>
+<script lang="ts">
   import "./app.css";
   import TopControls from "./lib/TopControls.svelte";
   import Channel from "./lib/BareChannel.svelte";
-  // import { voltageStore } from "./stores/voltageStore";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { getFullState } from "./api";
   import SubmitButton from "./lib/SubmitButton.svelte";
   import { colorMode } from "./stores/lightdark";
   import Module from "./lib/Module.svelte";
-
-  // import LightDarkToggle from "./lib/LightDarkToggle.svelte";
+  import { writable } from "svelte/store";
+  import type { SystemState, Module4chState } from "./stores/voltageStore";
+  import { voltageStore } from "./stores/voltageStore";
+  import { fallbackState } from "./fallbackState";
+  import ModuleAdder from "./lib/ModuleAdder.svelte";
 
   function toggleDarkMode() {
     console.log("toggleDarkMode");
     document.body.classList.toggle("dark-mode");
   }
 
-  let total_state
-  const module_1 = [
-    { index: 1, bias_voltage: 0.0, activated: false, heading_text: "test 1" },
-    { index: 2, bias_voltage: 0.0, activated: false, heading_text: "test 2" },
-    { index: 3, bias_voltage: 0.0, activated: false, heading_text: "test 3" },
-    { index: 4, bias_voltage: 0.0, activated: false, heading_text: "test 4" },
-  ];
+  let total_state;
 
-  const module_2 = [
-    { index: 1, bias_voltage: 0.0, activated: false, heading_text: "test 5" },
-    { index: 2, bias_voltage: 0.0, activated: false, heading_text: "test 6" },
-  ];
-
-  let fallback_state = [module_1, module_2];
-  console.log("total_state: ", total_state);
+  let non_initialized_state: SystemState = { data: [], valid: true };
 
   let serverNotResponding = false;
   let serverNotInitialized = false;
+  let num_modules = 0;
+  let module_idx = [];
+  let intervalId;
 
-  // onmount you should ask for the number of channels, then set up the store. total_state updates and the BiasControl components populate
   onMount(async () => {
     try {
       const response = await getFullState();
       console.log("the response: ", response);
       total_state = response;
-      if (total_state.length === 0) {
+
+      // if the server responds, but the data field is empty, then the server is not initialized
+      if (total_state.data.length === 0) {
         serverNotInitialized = true;
+        console.log("serverNotInitialized");
+        voltageStore.set(non_initialized_state);
       }
+
+      voltageStore.set(total_state);
+      num_modules = total_state.data.length;
+      module_idx = Array.from({ length: num_modules }, (_, i) => i + 1);
+
+      // Start the interval
+      intervalId = setInterval(async () => {
+        const response = await getFullState();
+        total_state = response;
+        voltageStore.set(total_state);
+      }, 1000); // 1000 milliseconds = 1 second
+
+      // if no response, server is not available. Use fallback state for testing
     } catch (error) {
       console.log("An error occurred: ", error);
       // Handle the error here
       serverNotResponding = true;
+      voltageStore.set(fallbackState);
+      num_modules = fallbackState.data.length;
+      module_idx = Array.from({ length: num_modules }, (_, i) => i + 1);
     }
   });
 
-  function initialize() {
-    console.log("submit button clicked");
-  }
+  onDestroy(() => {
+    // Clear the interval when the component is destroyed
+    clearInterval(intervalId);
+  });
 
-  function updateTotalState(module_index, newState) {
-    total_state[module_index] = newState;
-  }
 </script>
 
 <div class="container-main">
   <div class="main-bar">
-    <TopControls bind:total_state />
+    <TopControls />
     {#if serverNotResponding}
-      <p class="server-error">Server not responding</p>
-      {#each fallback_state as module_state, i}
-        <Module module_index={i + 1} {module_state} {updateTotalState}/>
+      <p class="basic-block">Server not responding</p>
+      {#each fallbackState.data as module_state, i}
+        <Module module_index={i + 1} />
       {/each}
     {/if}
 
     {#if serverNotInitialized}
-      <div class="server-error">
-        Server not initialized. Input number of channels:
-        <input type="number" min="1" max="100" step="1" value="" />
-        <SubmitButton {colorMode} on:submit={initialize}>Submit</SubmitButton>
-      </div>
+      <ModuleAdder />
     {/if}
-    {#if total_state}
-      {#each total_state as module_state, i}
-        <Module module_index={i + 1} {module_state} />
+    {#if module_idx}
+      {#each module_idx as idx}
+        <Module module_index={idx} />
       {/each}
     {:else}
-      <div class="server-error">Loading...</div>
+      <div class="basic-block">Loading...</div>
     {/if}
-
-    <!-- {#each total_state as _, i}
-      <Channel index={i + 1} bias_voltage={total_state[i].bias_voltage} activated={total_state[i].activated} heading_text={total_state[i].heading_text}/>
-    {/each} -->
   </div>
 
   <div class="side-area" />
 </div>
 
 <style>
-  .server-error {
-    color: rgb(255, 0, 0);
-    /* font-size: 0.5rem; */
+  
+  .basic-block {
     display: flex;
     flex-direction: column;
     justify-content: center;
     box-shadow: 0 0 7px rgba(0, 0, 0, 0.05);
     border: 1.3px solid var(--outer-border-color);
-    padding: 20px;
-    background-color: var(--body-color);
+    margin: 0.2rem 0rem;
   }
 
-  input {
+  
+
+  .basic-block {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 0 7px rgba(0, 0, 0, 0.05);
+    border: 1.3px solid var(--outer-border-color);
+    margin: 0.2rem 0rem;
+  }
+
+  /* input {
     background-color: var(--display-color);
     border-radius: 4px;
     border: 1.5px solid var(--inner-border-color);
@@ -117,22 +128,10 @@
     letter-spacing: 0.58rem;
     color: var(--digits-color);
     transition: background-color 0.1s ease-in-out;
-
-    /* set top and bottom margins to 0.5 rem, sides to zero */
     margin: 0.5rem 0rem;
-  }
+  } */
 
-  @media (min-width: 500px) {
-    .server-error {
-      margin: 5px 20px 5px 5px;
-    }
-  }
-
-  @media (max-width: 500px) {
-    .server-error {
-      margin: 5px 5px 5px 5px;
-    }
-  }
+  
 
   .container-main {
     display: flex;

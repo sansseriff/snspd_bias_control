@@ -11,8 +11,8 @@
     import ChevButtonBottom from "./ChevButtonBottom.svelte";
     import SubmitButton from "./SubmitButton.svelte";
     // import { voltageStore } from "../stores/voltageStore";
-    import { sendRequest } from "../api";
-    import type { Dst } from "../stores/voltageStore";
+    import { requestChannelUpdate } from "../api";
+    import type { ChannelChange } from "../stores/voltageStore";
     import App from "../App.svelte";
     import { onMount } from 'svelte';
 
@@ -91,7 +91,8 @@
         sign = bias_voltage < 0 ? "-" : "+";
         if (updateComplete) {
             console.log("sending request: ", {bias_voltage, activated, heading_text, index});
-            sendRequest({bias_voltage, activated, heading_text, index});
+            const module_index = 1
+            requestChannelUpdate({module_index, bias_voltage, activated, heading_text, index});
         }
 
         // sendRequest({bias_voltage, activated, heading_text, index});

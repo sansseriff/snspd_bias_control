@@ -6,24 +6,15 @@
   import { blur } from 'svelte/transition';
 
   export let module_index;
-  export let module_state;
-  export let updateTotalState;
-  // Call this function whenever module_state changes
-  function onStateChange(newState) {
-    console.log("new_state: ", newState);
-    updateTotalState(module_index, newState);
-  }
 
 
-  function updateChannel(channel_index, newChannelState) {
-    console.log("updateChannel: ", channel_index, newChannelState);
-    module_state[channel_index] = newChannelState;
-    onStateChange(module_state);
-  }
 
-  onMount(() => {
-    console.log("module_state: ", module_state);
-  });
+
+  // onMount(() => {
+  //   console.log("module_state: ", module_state);
+  // });]
+
+  let channel_list = [1,2,3,4]
 
   let toggle_up = false;
   let toggle_down = true;
@@ -67,15 +58,11 @@
     {#if visible}
       <div class="left-space"></div>
       <div class="right-content">
-        {#each module_state as channel_state, i}
+        {#each channel_list as _, i}
           <div transition:slide class="channel">
             <Channel
             index={i + 1}
-            bias_voltage={channel_state.bias_voltage}
-            activated={channel_state.activated}
-            heading_text={channel_state.heading_text}
             module_index={module_index}
-            {updateChannel}
           />
           </div>
           
