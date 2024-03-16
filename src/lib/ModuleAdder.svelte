@@ -1,9 +1,24 @@
 <script>
     import SubmitButton from "./SubmitButton.svelte";
-    import { colorMode } from "../stores/lightdark";
+    import GeneralButton from "./GeneralButton.svelte";
+    import { uiStateStore } from "../stores/uiStateStore";
+    import {initializeModule} from "../api";
+    import { voltageStore } from "../stores/voltageStore";
 
-    function initialize() {
+    let selectedSlot = "";
+    let selectedType = "";
+
+    async function initialize() {
         console.log("submit button clicked");
+        const response = await initializeModule(Number(selectedSlot), selectedType)
+        voltageStore.set(response);
+    }
+
+    function finish_adding_modules() {
+        uiStateStore.update((state) => {
+            state.show_module_adder = false;
+            return state;
+        });
     }
 </script>
 
@@ -36,7 +51,7 @@
         <div
             style="display: flex; flex-direction: column; justify-content: space-between;"
         >
-            <select style="height: 2.6rem; width: 100%">
+            <select bind:value={selectedSlot} style="height: 2.6rem; width: 100%">
                 <option value="" selected>Select module slot</option>
                 <option value="1">Slot 1</option>
                 <option value="2">Slot 2</option>
@@ -47,15 +62,18 @@
                 <option value="7">Slot 7</option>
                 <option value="8">Slot 8</option>
             </select>
-            <select style="height: 2.6rem; width: 100%">
+            <select bind:value={selectedType} style="height: 2.6rem; width: 100%">
                 <option value="" selected>Select module type</option>
                 <option value="1">4 Ch. Triax</option>
                 <option value="1">16 Ch. Micro Coax</option>
             </select>
         </div>
-        <SubmitButton {colorMode} on:submit={initialize}
+        <SubmitButton {uiStateStore} on:submit={initialize}
             >Add Module</SubmitButton
         >
+        <br>
+        <GeneralButton {uiStateStore} on:submit={finish_adding_modules}
+            >Finish Adding Modules</GeneralButton>
     </div>
 </div>
 

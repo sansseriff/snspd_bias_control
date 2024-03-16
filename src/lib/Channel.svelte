@@ -4,7 +4,7 @@
 </script>
 
 <script lang="ts">
-    import { colorMode } from "../stores/lightdark";
+    import { uiStateStore } from "../stores/uiStateStore";
     // import { voltageStore } from "../stores/voltageStore"
     import Button from "./Button.svelte";
     import ChevButtonTop from "./ChevButtonTop.svelte";
@@ -359,14 +359,14 @@
                 <Button
                     on:click={switchState}
                     redGreen={st.colorMode}
-                    {colorMode}>{st.action_string}</Button
+                    {uiStateStore}>{st.action_string}</Button
                 >
                 <input
                     type="text"
                     bind:this={inputRef}
                     on:keydown={handleInputKeyDown}
                 />
-                <SubmitButton {colorMode} on:submit={handleSubmitButtonClick}
+                <SubmitButton {uiStateStore} on:submit={handleSubmitButtonClick}
                     >Submit</SubmitButton
                 >
             </div>

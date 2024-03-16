@@ -5,7 +5,7 @@
 <script lang="ts">
   import LightDarkToggle from "./LightDarkToggle.svelte";
   import Hamburger from "./Hamburger.svelte";
-  import { colorMode } from "../stores/lightdark";
+  import { uiStateStore } from "../stores/uiStateStore";
   import Menu from "./Menu.svelte";
   import Button from "./Button.svelte";
   import { get } from 'svelte/store';
@@ -49,8 +49,8 @@
   </div>
 
   <div class="button-bar">
-    <Button redGreen={true} {colorMode} on:click={allOn}>All On</Button>
-    <Button redGreen={false} {colorMode} on:click={allOff}>All Off</Button>
+    <Button redGreen={true} {uiStateStore} on:click={allOn}>All On</Button>
+    <Button redGreen={false} {uiStateStore} on:click={allOff}>All Off</Button>
   </div>
 </div>
 

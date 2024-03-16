@@ -1,22 +1,23 @@
 <script>
+  import { createEventDispatcher } from 'svelte';
   export let uiStateStore;
-  export let redGreen;
+
+
+  const dispatch = createEventDispatcher();
+  
+  function handleClick() {
+    dispatch('submit');
+  }
 </script>
 
 
-<button on:click
-  class="{redGreen
-    ? $uiStateStore.colorMode
-      ? 'teal text-teal-500 hover:text-teal-400 border-teal-500 hover:bg-teal-900'
-      : 'teal text-teal-500 bg-teal-50 border-teal-500 hover:bg-teal-100'
-    : $uiStateStore.colorMode
-      ? 'red text-red-500 hover:text-red-400 border-red-500 hover:bg-red-900'
-      : 'red text-red-500 bg-red-50 border-red-500 hover:bg-red-100'} 
-    text-s font-medium border-2 border-opacity-50 rounded px-4 py-1 button"
-
->
+<button
+  class="{ $uiStateStore.colorMode
+      ? 'gray text-gray-500 hover:text-gray-400 border-gray-500 hover:bg-gray-900'
+      : 'gray text-gray-500 bg-gray-50 border-gray-500 hover:bg-gray-100'
+    } text-s font-medium border-2 border-opacity-50 rounded px-4 py-1 button"
+on:click={handleClick}>
   <slot />
-  <!-- my-2 ml-2 -->
 </button>
 
 
@@ -48,13 +49,13 @@
     transition: all 0.6s;
   }
 
-  .button.red:after {
-    background: #f36666;
+  .button.gray:after {
+    background: #e1e1e1;
   }
 
-  .button.teal:after {
+  /* .button.gray:after {
     background: #26f4ba;
-  }
+  } */
 
   .button:active:after {
     padding: 0;

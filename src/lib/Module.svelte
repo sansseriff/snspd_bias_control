@@ -1,13 +1,20 @@
 <script>
   import Channel from "./Channel.svelte";
   import { onMount } from "svelte";
-  import { colorMode } from "../stores/lightdark";
+  import { uiStateStore } from "../stores/uiStateStore";
+  import { voltageStore } from "../stores/voltageStore";
   import { slide } from 'svelte/transition';
   import { blur } from 'svelte/transition';
 
   export let module_index;
+  let slot = 0;
 
 
+  $: slot = $voltageStore.data[module_index-1]?.slot
+
+  // const intervalId = setInterval(async () => {
+  //       console.log($voltageStore.data[module_index-1]?.slot)
+  //     }, 1000); // 1000 milliseconds = 1 second
 
 
   // onMount(() => {
@@ -52,7 +59,7 @@
         />
       </svg>
     </div>
-    <div class="identifier">M{module_index}</div>
+    <div class="identifier">M{slot}</div>
   </div>
   <div class="body">
     {#if visible}

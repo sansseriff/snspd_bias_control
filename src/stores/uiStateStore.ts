@@ -1,11 +1,14 @@
 import { writable } from 'svelte/store';
 
-export const colorMode = writable(false);
+export interface UIState {
+  show_module_adder: boolean;
+  colorMode: boolean;
+}
 
-// const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-// console.log("isDarkMode: ", isDarkMode);
-// colorMode.set(isDarkMode);
-// setMode(isDarkMode);
+export const uiStateStore = writable<UIState>({
+  show_module_adder: false,
+  colorMode: false
+});
 
 const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 setMode(isDarkMode);
@@ -17,8 +20,10 @@ window.matchMedia('(prefers-color-scheme: dark)')
 
 export function setMode(value: boolean) {
     let dark = value;
-    // console.log("running setMode");
-    colorMode.set(dark);
+    uiStateStore.update(state => {
+      state.colorMode = dark;
+      return state;
+    });
 
     // update page styling
     if (dark) {
@@ -39,4 +44,4 @@ export function setMode(value: boolean) {
     }
 
     return dark;
-  }
+}

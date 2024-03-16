@@ -5,7 +5,7 @@
   import { onMount, onDestroy } from "svelte";
   import { getFullState } from "./api";
   import SubmitButton from "./lib/SubmitButton.svelte";
-  import { colorMode } from "./stores/lightdark";
+  import { uiStateStore } from "./stores/uiStateStore";
   import Module from "./lib/Module.svelte";
   import { writable } from "svelte/store";
   import type { SystemState, Module4chState } from "./stores/voltageStore";
@@ -23,10 +23,18 @@
   let non_initialized_state: SystemState = { data: [], valid: true };
 
   let serverNotResponding = false;
-  let serverNotInitialized = false;
+  // let serverNotInitialized = false;
   let num_modules = 0;
   let module_idx = [];
   let intervalId;
+
+  $: {
+    // console.log("running")
+    module_idx = Array.from({ length: $voltageStore.data.length }, (_, i) => i + 1);
+    // console.log($voltageStore.data[0].slot)
+  }
+    
+
 
   onMount(async () => {
     try {
@@ -34,10 +42,15 @@
       console.log("the response: ", response);
       total_state = response;
 
+      console.log("total_state: ", total_state);
+
       // if the server responds, but the data field is empty, then the server is not initialized
       if (total_state.data.length === 0) {
-        serverNotInitialized = true;
-        console.log("serverNotInitialized");
+        uiStateStore.update((state) => {
+          state.show_module_adder = true;
+          return state;
+        });
+        // console.log("serverNotInitialized");
         voltageStore.set(non_initialized_state);
       }
 
@@ -80,7 +93,7 @@
       {/each}
     {/if}
 
-    {#if serverNotInitialized}
+    {#if ($uiStateStore.show_module_adder)}
       <ModuleAdder />
     {/if}
     {#if module_idx}

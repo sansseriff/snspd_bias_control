@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from 'svelte';
-  export let colorMode;
+  export let uiStateStore;
 
 
   const dispatch = createEventDispatcher();
@@ -12,7 +12,7 @@
 
 
 <button
-  class="{ $colorMode
+  class="{ $uiStateStore.colorMode
       ? 'blue text-blue-500 hover:text-blue-400 border-blue-500 hover:bg-blue-900'
       : 'blue text-blue-500 bg-blue-50 border-blue-500 hover:bg-blue-100'
     } text-s font-medium border-2 border-opacity-50 rounded px-4 py-1 button"

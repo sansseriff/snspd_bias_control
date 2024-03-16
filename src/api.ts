@@ -76,3 +76,18 @@ export function initializeState(channel_number: number) {
         body: JSON.stringify({channel_number})
     })
 }
+
+
+export function initializeModule(slot: number, type: string) {
+    return fetch("/initialize-module", {
+        method: "POST",
+        signal: signal,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({slot, type})
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+}
